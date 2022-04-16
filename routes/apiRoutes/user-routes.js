@@ -7,11 +7,11 @@ router.get('/', (req, res) => {
     //SELECT * FROM TABLE
     User.findAll({
         attributes: { exclude: ['password'] }
-      })
+    })
         .then(dbUserData => res.json(dbUserData))
         .catch(err => {
-          console.log(err);
-          res.status(500).json(err);
+            console.log(err);
+            res.status(500).json(err);
         });
 });
 
@@ -21,26 +21,26 @@ router.get('/:id', (req, res) => {
     User.findOne({
         attributes: { exclude: ['password'] },
         where: {
-          id: req.params.id
+            id: req.params.id
         }
-      })
+    })
         .then(dbUserData => {
-          if (!dbUserData) {
-            res.status(404).json({ message: 'No user found with this id' });
-            return;
-          }
-          res.json(dbUserData);
+            if (!dbUserData) {
+                res.status(404).json({ message: 'No user found with this id' });
+                return;
+            }
+            res.json(dbUserData);
         })
         .catch(err => {
-          console.log(err);
-          res.status(500).json(err);
+            console.log(err);
+            res.status(500).json(err);
         });
-      
+
 });
 
 // POST /api/users
 router.post('/', (req, res) => {
-    // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
+    // expects {username, email, password}
     //.create = INSERT INTO TABLE 
     User.create({
         username: req.body.username,
@@ -54,9 +54,28 @@ router.post('/', (req, res) => {
         });
 });
 
+router.post('/login', (req, res) => {
+    // expects {email, password}
+    User.findOne({
+        where: {
+            email: req.body.email
+        }
+    }).then(dbUserData => {
+        if (!dbUserData) {
+            res.status(400).json({ message: 'No user with that email address!' });
+            return;
+        }
+
+        res.json({ user: dbUserData });
+
+        // Verify user
+
+    });
+});
+
 // PUT /api/users/1
 router.put('/:id', (req, res) => {
-    // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
+    // expects {username, email, password}
 
     // if req.body has exact key/value pairs to match the model, you can just use `req.body` instead
 
@@ -65,6 +84,7 @@ router.put('/:id', (req, res) => {
     // WHERE id = 1;
 
     User.update(req.body, {
+        individualHooks: true,
         where: {
             id: req.params.id
         }
@@ -84,25 +104,25 @@ router.put('/:id', (req, res) => {
 });
 
 // DELETE /api/users/1
-router.delete('/:id', (req, res) => { 
+router.delete('/:id', (req, res) => {
 
     //.destroy means DELETE FROM table_name WHERE y 
- 
+
     User.destroy({
         where: {
-          id: req.params.id
+            id: req.params.id
         }
-      })
+    })
         .then(dbUserData => {
-          if (!dbUserData) {
-            res.status(404).json({ message: 'No user found with this id' });
-            return;
-          }
-          res.json(dbUserData);
+            if (!dbUserData) {
+                res.status(404).json({ message: 'No user found with this id' });
+                return;
+            }
+            res.json(dbUserData);
         })
         .catch(err => {
-          console.log(err);
-          res.status(500).json(err);
+            console.log(err);
+            res.status(500).json(err);
         });
 });
 
